@@ -14,6 +14,9 @@ using namespace std;
 #define MEMORY_LENGTH 0xFF
 
 bool debug = false;
+int numberToDisplay = 0x10;
+
+string *currentLine;
 
 map<string, int> labels;
 int memoryLocation = 0;
@@ -71,17 +74,37 @@ void initializeOps() {
 }
 
 int main (int argc, char* argv[]) {
-  if (argc < 2) {
+  int i = 1;
+
+  while (argv[i][0] == '-') { // fetching flags
+    switch (argv[i][1]) {
+    case 'v': // verbose
+      debug = true;
+      break;
+    case 'n': // number of lines to display as output
+      if (isHex(argv[i+1]))
+	numberToDisplay = toHex(argv[i+1]);
+      else {
+	cerr << "'" << argv[i+1] << "' is not a valid hexadecimal number" << endl;
+	exit(1);
+      }
+      i++;
+      break;
+    }
+    i++;
+  }
+
+  if (argc-i > 1) {
     usage(argv[0]);
     return 0;
   }
   initializeOps();
   string line;
-  ifstream myfile (argv[1]);
+  currentLine = &line;
+  ifstream myfile (argv[i]);
 
   if (myfile.is_open()) {
     while ( getline (myfile,line) ) {
-
       vector<string> ret(MAX_WORDS_PER_LINE);
       int i;
       int words = getWords(line, ret);
@@ -91,11 +114,11 @@ int main (int argc, char* argv[]) {
     myfile.close();
   }
   else 
-    cout << "Unable to open file";
+    cout << "Unable to open '" << argv[i];
 
   memoryLocation = 0;
 
-  ifstream second (argv[1]);
+  ifstream second (argv[i]);
   if (second.is_open()) {
     while ( getline (second,line) ) {
 
@@ -108,7 +131,7 @@ int main (int argc, char* argv[]) {
     second.close();
   }
   else 
-    cout << "Unable to open file";
+    cout << "Unable to open '" << argv[i];
 
   /*
   map<string, int>::iterator p;
@@ -134,6 +157,12 @@ void loadLabels(vector<string> & ret, int words) {
       memoryLocation++;
       //cout << "mode for " << ret[i+2] << " is " << getAddressMode(ret[i+2]) << endl;
       if (words == 3) { // standard operation
+	if (!isHex(ret[i+2]) && !isLabel(ret[i+2])) {
+	  cerr << "ERROR on line " << memoryLocation << ": \"" << *currentLine << "\"" << endl;;
+	  cerr << "\t'" << ret[i+2] << "' is not valid value or label" << endl;
+	  exit(1);
+	}
+
         if (getAddressMode(ret[i+2]) == MODE_IMMEDIATE) {
           memoryLocation++;
         }
@@ -145,8 +174,10 @@ void loadLabels(vector<string> & ret, int words) {
       performSpecialOp(special[ret[i]], ret[i+1]);
     }
     else {
-      if (i == 0)
-	cerr << "WARNING: unknown word '" << ret[i] << "'" << endl;
+      if (i == 0) {
+	cerr << "ERROR: unknown word '" << ret[i] << "'" << endl;
+	exit(1);
+      }
     }
   }
 }
@@ -178,16 +209,16 @@ void fillMemory(vector<string> & ret, int words) {
       }
       else if (words == 1) {
 	assembly[memoryLocation] = ret[i];
-	
 	adr = 0;
       }
       else {
 	cerr << "invalid line: ";
 	int j;
 	for (j = 0; j < words; j++) {
-	    cerr << ret[i] << " ";
-	  }
-	       cerr << endl;
+	  cerr << ret[i] << " ";
+	}
+	cerr << endl;
+	exit(1);
       }
 
 	if (debug) cout << assembly[memoryLocation] << " ";
@@ -230,9 +261,10 @@ void fillMemory(vector<string> & ret, int words) {
     else if (isSpecial(ret[i])) {
       // Assuming the next word is a value,
       performSpecialOp(special[ret[i]], ret[i+1]);
+      i++;
     }
     else {
-      //cerr << "WARNING: unknown word '" << ret[i] << "'" << endl;
+      cerr << "WARNING: unknown word '" << ret[i] << "'" << endl;
     }
   }
 }
@@ -332,8 +364,21 @@ int getWords(string line, vector<string> & ret) {
   return count;
 }
 
+bool isHex(string number) {
+  int i;
+  for (i = 0; i < number.length(); i++) {
+    if (!isxdigit(number[i]))
+      return false;
+  }
+  return true;
+}
+
 int toHex(string number) {
   return (int)strtol(number.c_str(), NULL, 16);
+}
+
+int toDec(string number) {
+  return atoi(number.c_str());
 }
 
 void toUpper(string *word) {
@@ -345,7 +390,8 @@ int getRegisterNumber(string word) {
     return atoi(&word[1]);
   }
   
-  cerr << "WARNING: Argument '" << word << "' is not a register" << endl;
+  cerr << "ERROR: Argument '" << word << "' is not a register" << endl;
+  exit(0);
   return 0;
 }
 
@@ -402,7 +448,7 @@ int evalExpr(string word) {
 void memoryDump() {
   int i;
   
-  for (i = 0; i < 0x10; i++) {
+  for (i = 0; i < numberToDisplay; i++) {
     cout << hex << setfill ('0') << setw(2);
     cout << i << ": " << setw(4) << primMemory[i];
     if (assembly[i].compare("") != 0)

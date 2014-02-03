@@ -24,6 +24,7 @@ int toHex(string number);
 int getRegisterNumber(string word);
 int getAdr(string word);
 
+bool isHex(string number);
 bool isNumeric(string word);
 int evalExpr(string word);
 
