@@ -244,6 +244,7 @@ void performSpecialOp(int operation, string word) {
   switch(operation) {
     case SPECIAL_OP_DAT:
       primMemory[memoryLocation] = arg;
+      assembly[memoryLocation] = "DAT " + word;
       memoryLocation++;
       break;
     case SPECIAL_OP_ORG:
