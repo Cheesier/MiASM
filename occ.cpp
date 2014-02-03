@@ -152,12 +152,9 @@ void loadLabels(vector<string> & ret, int words) {
     if (isLabel(ret[i])) {
       if (!labelExists(ret[i]))
         addLabel(ret[i]);
-      //else
-        //cerr << "WARNING: Tried to redefine label '" << ret[i] << "'" << endl;
     }
     else if (isOperation(ret[i])) {
       memoryLocation++;
-      //cout << "mode for " << ret[i+2] << " is " << getAddressMode(ret[i+2]) << endl;
       if (words == 3) { // standard operation
 	if (!isHex(ret[i+2]) && !isLabel(ret[i+2])) {
 	  
@@ -172,12 +169,11 @@ void loadLabels(vector<string> & ret, int words) {
     }
     else if (isSpecial(ret[i])) {
       // Assuming the next word is a value
-      //cout << "found a specialop " << ret[i] << ret[i+1] << endl;
       performSpecialOp(special[ret[i]], ret[i+1]);
     }
     else {
       if (i == 0) {
-	reportError("Unknown operation " + ret[i]);
+	reportError("Unknown operation '" + ret[i] + "'");
       }
     }
   }
@@ -213,17 +209,10 @@ void fillMemory(vector<string> & ret, int words) {
 	adr = 0;
       }
       else {
-	cerr << "invalid line: ";
-	int j;
-	for (j = 0; j < words; j++) {
-	  cerr << ret[i] << " ";
-	}
-	cerr << endl;
-	exit(1);
+	reportError("invalid line.");
       }
 
-	if (debug) cout << assembly[memoryLocation] << " ";
-	//cout << ret[i] << " " << ret[i+1] << ", " << ret[i+2] << ": ";
+      if (debug) cout << assembly[memoryLocation] << " ";
       
 
       if (mode == MODE_IMMEDIATE) {
@@ -318,7 +307,6 @@ bool addLabel(string word) {
 
 bool isOperation(string word) {
   if (ops.count(word)) {
-    //cout << word << " is an operation" << endl;
     return true;
   }
   return false;
@@ -326,7 +314,6 @@ bool isOperation(string word) {
 
 bool isSpecial(string word) {
   if (special.count(word)) {
-    //cout << word << " is a special op" << endl;
     return true;
   }
   return false;
@@ -386,6 +373,10 @@ void toUpper(string *word) {
   transform(word->begin(), word->end(), word->begin(), ::toupper);
 }
 
+void toLower(string *word) {
+  transform(word->begin(), word->end(), word->begin(), ::tolower);
+}
+
 int getRegisterNumber(string word) {
   if (word[0] == 'R') {
     return atoi(&word[1]);
@@ -436,8 +427,6 @@ int evalExpr(string word) {
       break;
     }
   }
-  
-  //cout << "label: '" << label << "' value: '" << value << "'" << endl;
 
   if (current == &label)
     return -1;
