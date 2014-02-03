@@ -64,9 +64,11 @@ void initializeOps() {
   else {
     cout << "Did not find a computer spec file (\".occ\" file)." << endl;
     cout << "The .occ file should follow the following format:" << endl;
-    cout << "addr  OP" << endl;
+    cout << "\"addr  OP\"" << endl;
     cout << "Example:" << endl
-	 << "A0  LOAD" << endl;
+	 << "A0  LOAD" << endl
+	 << "A1  STORE" << endl;
+    exit(2);
   }
 
   special.insert(pair<string, int>( "DAT",   SPECIAL_OP_DAT ));
@@ -158,8 +160,8 @@ void loadLabels(vector<string> & ret, int words) {
       //cout << "mode for " << ret[i+2] << " is " << getAddressMode(ret[i+2]) << endl;
       if (words == 3) { // standard operation
 	if (!isHex(ret[i+2]) && !isLabel(ret[i+2])) {
-	  cerr << "ERROR on line " << memoryLocation << ": \"" << *currentLine << "\"" << endl;;
-	  cerr << "\t'" << ret[i+2] << "' is not valid value or label" << endl;
+	  
+	  reportError("'" + ret[i+2] + "' is not a valid value or label");
 	  exit(1);
 	}
 
@@ -175,8 +177,7 @@ void loadLabels(vector<string> & ret, int words) {
     }
     else {
       if (i == 0) {
-	cerr << "ERROR: unknown word '" << ret[i] << "'" << endl;
-	exit(1);
+	reportError("Unknown operation " + ret[i]);
       }
     }
   }
@@ -389,10 +390,10 @@ int getRegisterNumber(string word) {
   if (word[0] == 'R') {
     return atoi(&word[1]);
   }
-  
-  cerr << "ERROR: Argument '" << word << "' is not a register" << endl;
-  exit(0);
-  return 0;
+  else {
+    reportError("Argument '" + word + "' is not a register");
+    return -1;
+  }
 }
 
 int getAdr(string word) {
@@ -469,4 +470,11 @@ void memoryDump() {
 void usage(string name) {
   cout << "Usage: " << name << " 'filename'" << endl;
   cout << "Observe, does not take multiple files" << endl;
+}
+
+void reportError(string message) {
+  cerr << "On line " << memoryLocation << ": \"" 
+       << *currentLine << "\"" << endl;
+  cerr << "ERROR: " << message << endl;
+  exit(1);
 }

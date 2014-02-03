@@ -30,3 +30,5 @@ int evalExpr(string word);
 
 void memoryDump();
 void usage(string name);
+
+void reportError(string message);
