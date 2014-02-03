@@ -1,0 +1,5 @@
+*.occ
+*.asm
+a.out
+*~
+*.out
