@@ -17,6 +17,7 @@ bool debug = false;
 int numberToDisplay = 0x10;
 
 string *currentLine;
+int currentLineNum;
 
 map<string, int> labels;
 int memoryLocation = 0;
@@ -107,6 +108,7 @@ int main (int argc, char* argv[]) {
 
   if (myfile.is_open()) {
     while ( getline (myfile,line) ) {
+      currentLineNum++;
       vector<string> ret(MAX_WORDS_PER_LINE);
       int i;
       int words = getWords(line, ret);
@@ -119,11 +121,12 @@ int main (int argc, char* argv[]) {
     cout << "Unable to open '" << argv[i];
 
   memoryLocation = 0;
+  currentLineNum = 0;
 
   ifstream second (argv[i]);
   if (second.is_open()) {
     while ( getline (second,line) ) {
-
+      currentLineNum++;
       vector<string> ret(MAX_WORDS_PER_LINE);
       int i;
       int words = getWords(line, ret);
@@ -156,12 +159,6 @@ void loadLabels(vector<string> & ret, int words) {
     else if (isOperation(ret[i])) {
       memoryLocation++;
       if (words == 3) { // standard operation
-	if (!isHex(ret[i+2]) && !isLabel(ret[i+2])) {
-	  
-	  reportError("'" + ret[i+2] + "' is not a valid value or label");
-	  exit(1);
-	}
-
         if (getAddressMode(ret[i+2]) == MODE_IMMEDIATE) {
           memoryLocation++;
         }
@@ -403,10 +400,11 @@ int getAdr(string word) {
 
   if (labelExists(actual))
     return labels[actual];
-  else if (evalExpr(actual) == -1)
+  else if (isHex(actual))
     return toHex(actual);
   else
-    return evalExpr(actual);
+    reportError("'" + actual + "' is not a valid label or value.");
+  return -1;
 }
 
 int evalExpr(string word) {
@@ -462,7 +460,7 @@ void usage(string name) {
 }
 
 void reportError(string message) {
-  cerr << "On line " << memoryLocation << ": \"" 
+  cerr << "On line " << currentLineNum << ": \"" 
        << *currentLine << "\"" << endl;
   cerr << "ERROR: " << message << endl;
   exit(1);
