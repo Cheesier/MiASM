@@ -14,7 +14,7 @@ using namespace std;
 #define MEMORY_LENGTH 0xFF
 
 bool debug = false;
-int numberToDisplay = 0;
+int numberToDisplay = 0x10;
 
 string *currentLine;
 int currentLineNum;
@@ -215,6 +215,7 @@ void fillMemory(vector<string> & ret, int words) {
       if (mode == MODE_IMMEDIATE) {
         immediateValue = adr;
         adr = memoryLocation+1;
+        adr = 0;
       }
 
       
@@ -297,8 +298,7 @@ bool labelExists(string word) {
 bool addLabel(string word) {
   // save where the label was found
   labels.insert(pair<string, int>( word.substr(1),  memoryLocation ));
-  if (numberToDisplay > 0)
-    cout << "addr: " << setfill('0') << setw(2) << memoryLocation << " label '" << word.substr(1) << "'" << endl;
+  cout << "addr: " << setfill('0') << setw(2) << memoryLocation << " label '" << word.substr(1) << "'" << endl;
   return true;
 }
 
