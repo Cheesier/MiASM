@@ -122,8 +122,10 @@ int main (int argc, char* argv[]) {
     }
     myfile.close();
   }
-  else 
+  else {
     cout << "Unable to open '" << argv[i];
+    exit(1);
+  }
 
   memoryLocation = 0;
   currentLineNum = 0;
@@ -448,9 +450,9 @@ void memoryDump() {
       cout << "    ; " << assembly[i];
     cout << endl;
   }
-  cout << "Full dump at masm.out" << endl;
+  cout << "Full dump at miasm.out" << endl;
 
-  ofstream outFile("masm.out");
+  ofstream outFile("miasm.out");
   for (i = 0; i < MEMORY_LENGTH+1; i++) {
     outFile << hex << setfill ('0') << setw(2);
     outFile << i << ": " << setw(4) << primMemory[i] << endl;
