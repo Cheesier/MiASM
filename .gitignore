@@ -1,5 +1,6 @@
-*.occ
 *.asm
+*.miasm
 a.out
 *~
 *.out
+miasm
