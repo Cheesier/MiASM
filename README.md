@@ -8,8 +8,8 @@ Features
 =====
 * Any compatible instructions defined in the computer spec file ('.csf')
 * Labels
-* DAT <value> (takes up 1 word of memory, and loads that with <value>)
-* ORG <value> (the following instructions will start at location <value>)
+* ``DAT [value]`` (takes up 1 word of memory, and loads that with [value])
+* ``ORG [value]`` (the following instructions will be placed at address [value])
 
 Using
 =====
