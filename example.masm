@@ -1,0 +1,14 @@
+:val_3 dat 2			; pointer to v3 (does not support labels to labels)
+:v2 dat 5
+:v3 dat 6
+:out dat 0
+
+ORG 0A				; Instructions now writing from 0x0A and onward
+:main
+LOAD R1, v2			; Direct addressing
+ADD R1, #3			; Immediate addressing
+ADD R1, [val_3]			; Indirect addressing
+STORE R1, out
+	
+	;; memory at location 'out' (3 if unchanged)
+	;; M('out') = 5 + 3 + 6
