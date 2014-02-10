@@ -1,6 +1,7 @@
 MiASM
 =====
 MiASM is a very simple, poorly written "assembler" for the LiU 'lmia' systems target to teach microprogramming.
+
 Its assembly language is similar to the Motorola 68000 assembly language, and with minor modifications it can probably be ported over.
 
 Features
@@ -9,3 +10,13 @@ Features
 * Labels
 * DAT <value> (takes up 1 word of memory, and loads that with <value>)
 * ORG <value> (the following instructions will start at location <value>)
+
+Using
+=====
+Compiling is simple, just run ```g++ -o miasm miasm.cpp``` inside the main MiASM directory.
+
+Running it is just a matter of runnning it like any other program, ```./miasm [flags] 'filename'```.
+
+Support
+=====
+This assembler will most likely never be updated, NEVER rely on it for production code (duh).
